@@ -1,50 +1,66 @@
-# V1.0欢迎来到我的文档站点
+1.查看所有模组状态
+bmsec getbi
+------------------------------------------------------------
+2.机器进入模组串口
+sudo su
 
-> 这是一个使用 Docsify 构建的文档站点，部署在 GitHub Pages 上。
+source ~/se_ctrl/sectr.sh
 
-## 特性1
+sectr_switch_uart 12
 
-- 📝 简洁优雅的文档界面
-- 🔍 全文搜索功能
-- 📱 响应式设计，支持移动端
-- 🎨 多种主题可选
-- ⚡ 无需构建，即时预览
+minicom -D /dev/ttyS1
+--------------------------------------------------------
+3.查看模组IP
+fping -a -q -g 192.168.1.0/24
 
-## 快速开始
+ifconfig
 
-### 本地运行
+sudo su
+                                                     
+cat /sys/bus/i2c/devices/1-0017/board-ip                                                                 
+------------------------------------------------------------
+4.查看所有模组MCU版本和电源软件版本
+bm_version |grep MCU
 
-\`\`\`bash
-# 安装 docsify-cli
-npm i docsify-cli -g
+bmsec run all "bm_version"
 
-# 在项目目录下运行
-docsify serve .
-\`\`\`
+sudo pmbus -d 0 -s 0x50 -j |grep 'output voltage
+---------------------------------------------------------
+5.MCU命令在线升级
+scp sm7mini-mcu-v10-2023-09-26-20-36-00.bin linaro@192.168.1.10:~/.
 
-### 部署到 GitHub Pages
+ls
 
-1. 将代码推送到 GitHub 仓库
-2. 在仓库设置中启用 GitHub Pages
-3. 选择 `main` 分支作为源
+sudo su
 
-## 文档结构
+mcu-util-aarch64 upgrade-full 1 0x17 sm7mini-mcu-v10-2023-09-26-20-36-00.bin
+--------------------------------------------------------------------------------------------------------
 
-\`\`\`
-.
-├── README.md        # 主页
-├── index.html       # 配置文件
-├── _sidebar.md      # 侧边栏
-├── _navbar.md       # 导航栏
-├── _coverpage.md    # 封面页
-└── docs/           # 文档目录
-    ├── guide/      # 指南
-    └── api/        # API文档
-\`\`\`
+bmsec ssh 11
 
-## 更多信息
 
-访问 [Docsify 官方文档](https://docsify.js.org/) 了解更多配置选项。
-\`\`\`
 
-创建侧边栏配置：
+核心板升级：
+sudo su
+systemctl status tftpd-hpa
+ls -al /recovery/tftp/
+cd /root/se6_ctrl/script
+
+./core_run_command_bynet.sh "~/tftp_update/mk_bootscr.sh;sync" linaro linaro
+./core_run_command_bynet.sh "sudo reboot now " linaro linaro
+
+进串口：
+sudo su
+source ~/se6_ctrl/se6ctr.sh
+se6ctr_switch_uart x
+minicom -D /dev/ttyS2
+
+You、:
+ctrl+a z q 回车
+
+You、:
+看核心板MCU： ./core_run_command_bynet.sh "bm_version |grep MCU" linaro linaro
+
+You、:
+SDK日期： ./core_run_command_bynet.sh "uname -a" linaro linaro
+
