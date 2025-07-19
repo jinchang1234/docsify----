@@ -1,3 +1,7 @@
+<img width="474" height="266" alt="image" src="https://github.com/user-attachments/assets/f12ec996-4fd3-476d-aa03-20e8107cce95" />
+
+### 吴海洋宝宝
+
 1.查看所有模组状态
 bmsec getbi
 ------------------------------------------------------------
